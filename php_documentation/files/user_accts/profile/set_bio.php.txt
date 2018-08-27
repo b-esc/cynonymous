@@ -1,0 +1,27 @@
+<?php
+//Christian Lucht
+include("../../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+set_bio($dbh, 'I am a loser named Chris. From ChrisVille.', 2);
+
+/**
+ * Used to set the bio of the user.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param string $bio The string of the desired bio.
+ * @param int $uid The id of the user whose bio is to be set.
+ * @return void
+ */
+function set_bio($dbh, $bio, $uid){
+	$sql = "UPDATE user_info SET bio = :bio WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':bio', $bio, PDO::PARAM_STR);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+}

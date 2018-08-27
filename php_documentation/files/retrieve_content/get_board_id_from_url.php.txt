@@ -1,0 +1,38 @@
+<?php 
+//Ryan Buls
+    include("../utilities/utilities.php");
+
+    if(isset($_POST["board_url"])){
+        ret_board_id($_POST["board_url"]);
+    }
+    /**
+     * Returns a board id from a given board url using the provided database connection.
+     * 
+     * @param string $url The board url to locate.
+     * @return void
+     */
+    function ret_board_id($url){
+        global $boardtable;
+
+        $DBH = connect_DB();
+
+        try{
+            $query = "SELECT board_id from $boardtable WHERE board_url = :url";
+            $STH = $DBH->prepare($query);
+
+            $STH->execute(["url" => $url]);
+        } 
+        catch(PDOException $e){
+            echo $e->getMessage();
+        }
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        if($STH->rowcount() == 1){
+            $val_arr = $STH->fetchall();
+            echo $val_arr[0]["board_id"];
+        } else {
+            echo "ERROR";
+        }
+        $STH = null;
+        $DBH = null;        
+    }
+

@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--<link rel="icon" href="../../favicon.ico">-->
+    <!--<script src="../libs/js/jquery_test/jquery-3.3.1.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
+    <script src="../libs/js/jquery-3.3.1.js"></script>
+    <script src="../javascript/postviewScript.js"></script>
+    <script src ="../javascript/navbarScript.js"></script>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <title>cynonymous</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../libs/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../css/threadView_ss.css" rel="stylesheet">
+    <style type = "text/css">
+        #login{
+            position: absolute;
+            right: 0px;
+            display: none;
+        }
+    </style>
+
+
+    <!--Here's the CSS for login and signup-->
+    <style type = "text/css">
+        #login{
+            position: absolute;
+            right: 0px;
+            display: none;
+        }
+        #signup{
+            position: absolute;
+            right: 0px;
+            display: none;
+        }
+
+        #logout-bar{
+            display: none;
+        }
+        #helloUser{
+            display: none;
+        }
+        #endSafari{
+            display: none;
+        }
+
+    </style>
+</head>
+
+<body>
+<!--A page with a navbar and a simple login form-->
+<nav id = "navbar"  class ="navbar navbar-inverse">
+    <div  class ="container-fluid">
+        <div class = "navbar-header">
+            <a id = "homeLink" class = "navbar-brand" href = '../html/home_page.html'> Cynonymous </a>
+            <button id = "beginSafari">Safari Mode</button>
+            <button id = "endSafari">End Safari</button>
+            <!--BEGIN SIGNUP-->
+            <a>anon toggle</a><input id="anonPostToggle" type="checkbox">
+            <!--CSS for signup and login located in Head-->
+            <div id = "signup" class="jumbotron">
+                <center>
+                    First Name:
+                    <input name = "firstName" id = "firstName" size = "14"></center>
+                <center>Last Name:
+                    <input name = "lastName" id = "lastName" size = "14"></center>
+                <center>Email:
+                    <input name = "email" id = "email" size = "14"></center>
+
+                <center>Username:
+                    <input name = "newUsername" id = "newUserName" size = "14"></center>
+                <center>Password:
+                    <input name = "newPassword" id = "newPassword" size = "14"></center>
+
+                <center><button id = "close-sign-up">Close</button>
+                    <button id ="submit-sign-up">Create Account</button></center>
+
+            </div>
+            <!--END SIGNUP-->
+            <!--BEGIN LOGIN-->
+            <div id = "login" class="jumbotron">
+                <center> Username </center>
+                <center><input name = "username" id = "user" size = "14"/></center>
+                <center> Password </center>
+                <center><input name = "password" id = "pass" type = password size = "14"/></center>
+                <p>
+                    <button id = "close-login">Close</button>
+                    <button id = "submit-login">Submit</button>
+                </p>
+            </div>
+            <!--END LOGIN-->
+        </div>
+
+
+        <ul class = "nav navbar-nav navbar-right">
+            <li><a href="#" ><button id = "signup-bar">Sign Up</button></a></li>
+            <!-- MAKE SURE HELLOUSER AND CSS ARE ADDED TO ALL OLD HTML-->
+            <li><p id = "helloUser">Hello</p></li>
+            <li><a href="#" ><button id = "login-bar">Login</button></a></li>
+            <li><a href ="#"><button id = "logout-bar">Logout</button></a></li>
+
+        </ul>
+
+    </div>
+</nav>
+
+
+<div class="float-left" id="replyBox">
+    <div class="card" style="width: 20rem;">
+        <div class="card-block">
+            <input type="text" class="form-control" id="postOptionsInput" placeholder="post to (thread url i.e board/post)">
+            <input type="text" class="form-control" id="postSubjectInput" placeholder="subject">
+            <textarea class="form-control" id="postInputBody" rows="3"></textarea>
+        </div>
+    </div>
+    <button class="btn btn-secondary" type="button" value="Submit" id="postBtn">post</button>
+</div>
+<br><br><br><br><br>
+
+<!--BEGIN POST PAGE-->
+<div class = jumbotron id="nThreadPanel" style="background:blanchedalmond">
+    <div class="container">
+        <div class ="text-center">
+
+            <form style="display: none" id="newThreadForm">
+                <div class="form-group row">
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="inputTitle" placeholder="Subject">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputBody">Body</label>
+                    <textarea class="form-control" id="inputBody" rows="3"></textarea>
+                </div>
+                <button class="btn btn-secondary" type="button" value="Submit" id="submitBtn">Submit</button>
+            </form>
+
+
+            <p><a class ="btn btn-outline-secondary" role="button" id="newThreadBt" onclick="showForm()">New Thread</a> </p>
+            <h5 class ="display-4" id="siteTitle">cynonymous</h5>
+        </div>
+        <div class ="text-left">
+
+        </div>
+    </div>
+</div>
+<h1>its me chris</h1>
+
+
+<div class="border border-primary">
+    <div class ="container-fluid">
+        <div class="row">
+            <div class="float-left"><img class="img-thumbnail" src="../resources/chris1.jpg" ></div>
+            <a id="closeTest">close big thread test</a>
+            <div class="col-sm">
+                <h6>#<a id="threadID">(THREAD-ID)</a><a>: </a><a id="creatorID">anon/user</a> <a id="datecreated"></a></h6>
+                <h4>next group meeting:</h4>
+                <a>making threads threads and posts in threads, instead
+                    of posts appear as threads.<a href="../dummy_post.html">what posts will look like</a>
+                    homepage / redirection monday
+                </a>
+            </div>
+        </div>
+        <div id="testHere"></div>
+    </div>
+
+</div>
+
+
+<!--ugh wth "Floated elements don’t take up any 
+ vertical space in their containing element."-->
+
+
+<div id="dummy"></div>
+<div id="redirDummy"></div>
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="../libs/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+</body>
+</html>

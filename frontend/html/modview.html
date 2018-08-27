@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--<link rel="icon" href="../../favicon.ico">-->
+    <!--<script src="../libs/js/jquery_test/jquery-3.3.1.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
+    <script src="../libs/js/jquery-3.3.1.js"></script>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <title>cynonymous</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../libs/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../css/modview_ss.css" rel="stylesheet">
+    <!--<script src="../javascript/threadviewScript.js"></script>-->
+    <script src="../javascript/adminviewScript.js"></script>
+</head>
+<body>
+<div class="wrapper">
+
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>MOD PANEL</h3>
+        </div>
+        <a>hover over commands for usage instructions</a>
+        <!--links-->
+        <ul class="list-unstyled components">
+            <li class="active"><a href="home_page.html">Home</a></li>
+
+            <li>
+                <a href="#adminSubmenu0" data-toggle="collapse" aria-expanded="false">CREATE</a>
+                <ul class="collapse list-unstyled" id="adminSubmenu0">
+                    <li><a id="aCreateBoard" title="name,description,familyFriendlyInt,boardUrl">Create Board</a></li>
+
+                </ul>
+            <li>
+                <a href="#adminSubmenu1" data-toggle="collapse" aria-expanded="false">DELETE</a>
+                <ul class="collapse list-unstyled" id="adminSubmenu1">
+                    <li><a id="aDeleteBoard" title="board_id">Delete Board</a></li>
+                    <li><a id="aDeleteThread" title="thread_id">Delete Thread</a></li>
+                    <li><a id="aDeletePost" title="thread_id">Delete Post</a></li>
+                </ul>
+            <li>
+                <a href="#adminSubmenu2" data-toggle="collapse" aria-expanded="false">USER</a>
+                <ul class="collapse list-unstyled" id="adminSubmenu2">
+                    <li><a id="aBanUse" title="uid">FOR ADMIN USE ONLY</a></li>
+                    <li><a id="aUnbanUse" title="uid">FOR ADMIN USE ONLY!</a></li>            </ul>
+        </ul>
+        <textarea class="form-control" id="adminArgs" rows="3"></textarea>
+        <button class="btn btn-secondary" type="button" value="Submit" id="adminBtn">run command</button>
+    </nav>
+
+</div>
+
+<!--<div class="float-left" id="replyBox">
+<div class="card" style="width: 20rem;">
+    <div class="card-block">
+        <input type="text" class="form-control" id="postOptionsInput" placeholder="post to (thread url i.e board/post)">
+        <input type="text" class="form-control" id="postSubjectInput" placeholder="subject">
+        <textarea class="form-control" id="postInputBody" rows="3"></textarea>
+    </div>
+</div>
+<button class="btn btn-secondary" type="button" value="Submit" id="postBtn">post</button>
+</div>-->
+<!--BEGIN POST PAGE-->
+<div class id="nThreadPanel" style="background:blanchedalmond">
+    <div class="container" >
+        <div class ="text-center">
+
+            <form style="display: none" id="newThreadForm">
+                <div class="form-group row">
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="inputTitle" placeholder="Subject">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputBody">Body</label>
+                    <textarea class="form-control" id="inputBody" rows="3"></textarea>
+                </div>
+                <button class="btn btn-secondary" type="button" value="Submit" id="submitBtn">Submit</button>
+            </form>
+
+            <div id="content" style="display: inline-block">
+                <button type="button" id="sidebarCollapse" class="btn">
+                    toggle admin panel
+                </button>
+            </div>
+            <p><a class ="btn btn-outline-secondary" role="button" id="newThreadBt" onclick="showForm()">New Thread</a> </p>
+            <h5 class ="display-4" id="siteTitle">cynonymous</h5>
+        </div>
+        <div class ="text-left">
+            <div id="adminAppendTarg"></div>
+
+        </div>
+    </div>
+</div>
+
+
+<!--ugh wth "Floated elements don’t take up any
+ vertical space in their containing element."-->
+
+
+<!--<div id="dummy"></div>
+<div id="redirDummy"></div>-->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="../libs/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+</body>
+</html>

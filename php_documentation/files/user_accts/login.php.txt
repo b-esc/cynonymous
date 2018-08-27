@@ -1,0 +1,37 @@
+<?PHP session_start();
+//Ryan Buls
+    include("../utilities/utilities.php");
+
+    $uname = $_POST["user"];
+    $upass = $_POST["pass"];
+
+    $DBH = connect_DB();
+
+    
+    try {
+        $query = "Select id, username, last_name, first_name from ".$usertable." WHERE username=:uname AND password=:upass and verified = :verified ORDER BY id DESC";
+        $STH = $DBH->prepare($query);
+        //echo $STH;
+        $STH -> execute(["uname" => $uname, "upass" => $upass, "verified" => 1]);
+    }
+    catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+    if( $STH->rowcount() == 1){
+       // echo "You Have Been Logged In";
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        $row = $STH->fetch();
+        $_SESSION["fname"]= $row["first_name"];
+        $_SESSION["lname"]= $row["last_name"];
+        $_SESSION["uid"]= $row["id"];
+        $_SESSION["uname"]= $row["username"];
+
+    } else {
+        //echo "LOGIN ERROR!!!!!!!!!!";
+        $_SESSION = null;
+    }
+    echo json_encode($_SESSION["uname"]);
+    $DBH = null;
+
+
+?>

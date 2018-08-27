@@ -1,0 +1,29 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+    padding-top: 2rem;
+}
+
+.container-fluid{
+    background-color: blanchedalmond;
+}
+
+
+.border-primary{
+    margin-bottom: 3%;
+}
+
+.img-thumbnail{
+    width:300px;
+    height: 200px;
+}
+
+#sub_body{
+    display: none !important;
+}
+/*#replyBox{*/
+    /*position: fixed;*/
+    /*left: 50%;*/
+/*}*/
+
+#newThreadBt{}
+#newThreadForm{}

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: navbarScript.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: navbarScript.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>$(document).ready(function(){
+
+    //If a username cookie is set, the page will begin using it immediately.
+    //Login and signup are hidden and helloUser and logout are shown
+    if(getUsernameCookie() != ""){
+        $("#helloUser").html("Hello " + getUsernameCookie() + "!");
+        //alert(document.cookie);
+        $("#login-bar").hide();
+        $("#signup-bar").hide();
+        $("#logout-bar").show();
+        $("#helloUser").show();
+    }
+    //Toggles whether the login form is hidden or shown. Hides the sign up form if clicked.
+    $("#login-bar").click(function(){
+        $("#signup").hide();
+        $("#login").toggle();
+
+    });
+    //Toggles whether the sign up form is hidden or shown. Hides the login form if clicked.
+    $("#signup-bar").click(function(){
+        $("#login").hide();
+        $("#signup").toggle();
+
+    });
+
+    //Logs a user out
+    $("#logout-bar").click(function(){
+        //Posts to log a user out.
+        //USE AN ABSOLUTE PATH TO THE WEB ROOT
+
+        $.post('../../php_resources/user_accts/logout.php',
+            {
+            },
+            function(status){
+                alert("Logout " + status);
+                deleteUsernameCookie();
+            });
+        $("#logout-bar").hide();
+        $("#helloUser").hide();
+        $("#signup-bar").show();
+        $("#login-bar").show();
+
+
+    });
+
+    //closes the login window
+    $("#close-login").click(function(){
+        $("#login").hide();
+    });
+
+    //closes the sign up window
+    $("#close-sign-up").click(function(){
+        $("#signup").hide();
+    });
+
+
+
+    //A function to pass the entered username and password to the php login file
+    $("#submit-login").on("click", function(){
+
+        //hides the login window
+        $("#login").hide();
+
+
+        //Posts username and password to login
+        //USE AN ABSOLUTE PATH TO THE WEB ROOT
+        $.post('../../php_resources/user_accts/login.php',
+            {
+                user: $("#user").val(),
+                pass: $("#pass").val()
+            },
+            //A function to confirm the information entered was properly sent.
+            function(JSONObject){
+                var cookie = JSON.parse(JSONObject);
+                if(cookie == null){
+                    alert("Login Failed");
+                }
+                else {
+
+                    alert("Logged in as " + cookie);
+                    setUsernameCookie(cookie);
+                    $("#helloUser").html("Hello " + getUsernameCookie() + "!");
+
+
+                    //Hides the login and signup buttons, displays logout.
+                    $("#login-bar").hide();
+                    $("#signup-bar").hide();
+                    $("#logout-bar").show();
+                    $("#helloUser").show();
+                }
+            });
+        //Clears the Username and Password fields.
+        $("#user").val("");
+        $("#pass").val("");
+
+
+    });
+
+    //A function to pass a new user's account information to the php account creation page
+    $("#submit-sign-up").on("click", function(){
+
+        //hides the sign up window
+        $("#signup").hide();
+
+        //Bad check to see if form is full. Working on a better one, but this
+        //will work for the time being.
+        if($("#firstName").val() == ""){
+            alert("First Name field required");
+            if($("#lastName").val() == ""){
+                alert("Last Name field required");
+                if ($("#email").val() == ""){
+                    alert("Email field required");
+                    if($("#newUserName").val() == ""){
+                        alert("Username field required");
+                        if($("#newPassword").val() == ""){
+                            alert("Password field required");
+
+                        }
+                    }
+                }
+            }
+        }
+
+        //TODO
+        //Auto login users when they signup
+        else {
+            // Posts the new username, password, email, and first and last name
+            //USE AN ABSOLUTE PATH TO THE WEB ROOT
+
+            $.post('../../php_resources/user_accts/create_acct.php',
+
+                {
+                    user: $("#newUserName").val(),
+                    pass: $("#newPassword").val(),
+                    email: $("#email").val(),
+                    fname: $("#firstName").val(),
+                    lname: $("#lastName").val()
+                },
+                //A function to confirm the information was properly sent.
+                function (data, status) {
+                    alert("Data: " + data + "\nStatus: " + status);
+
+
+                });
+
+            //AUTO LOGIN
+            $("#user").val($("#newUserName").val());
+            $("#pass").val($("#newPassword").val());
+            $("#submit-login").click();
+
+            // Clears all of the sign up fields.
+            $("#newUserName").val("");
+            $("#newPassword").val("");
+            $("#email").val("");
+            $("#firstName").val("");
+            $("#lastName").val("");
+        }
+    });
+
+    /**
+     * Sets the username field in the cookie.
+     * If any more fields are added to the cookie this will need to be modified accordingly
+     * Potentially could be modified to set any value in the cookie.
+     * @param newName
+     *  cookie
+     */
+
+    function setUsernameCookie(newName){
+        document.cookie = "cynonusername=" + newName;
+    }
+
+    /**
+     * Gets the username field from the cookie and returns it.
+     * Currently relies on username being the first field in the cookie for the function
+     * to work properly, may need modified if other fields are added.
+     * @constructor cookie
+     *  cookie
+     */
+
+
+    /**
+     * Retrieves the username cookie
+     */
+    function getUsernameCookie(){
+        var temp = document.cookie.split(';');
+        return temp[0].substring(14,temp[0].length);
+    }
+
+    /**
+     * clears the username field in the cookie.
+     */
+    function deleteUsernameCookie(){
+        document.cookie = "cynonusername=";
+    }
+});
+
+/**
+ * Login and parse cookies to php function pages/
+ * @param abs
+ *  flag indicating if an absolute path to the webroot is needed
+ */
+function absolute_login(abs){
+    $("#submit-login").on("click", function(){
+
+        //hides the login window
+        $("#login").hide();
+
+
+        //Posts username and password to login
+        //USE AN ABSOLUTE PATH TO THE WEB ROOT
+        $.post('../../php_resources/user_accts/login.php',
+            {
+                user: $("#user").val(),
+                pass: $("#pass").val()
+            },
+            //A function to confirm the information entered was properly sent.
+            function(JSONObject){
+                var cookie = JSON.parse(JSONObject);
+                if(cookie == null){
+                    alert("Login Failed");
+                }
+                else {
+
+                    alert("Logged in as " + cookie);
+                    setUsernameCookie(cookie);
+                    $("#helloUser").html("Hello " + getUsernameCookie() + "!");
+
+
+                    //Hides the login and signup buttons, displays logout.
+                    $("#login-bar").hide();
+                    $("#signup-bar").hide();
+                    $("#logout-bar").show();
+                    $("#helloUser").show();
+                }
+            });
+        //Clears the Username and Password fields.
+        $("#user").val("");
+        $("#pass").val("");
+
+
+    });
+}
+
+/**
+ * Sets the username field in the cookie.
+ * If any more fields are added to the cookie this will need to be modified accordingly
+ * Potentially could be modified to set any value in the cookie.
+ * @param newName
+ *  cookie
+ */
+
+function setUsernameCookie(newName){
+    document.cookie = "cynonusername=" + newName;
+}
+
+/**
+ * Gets the username field from the cookie and returns it.
+ * Currently relies on username being the first field in the cookie for the function
+ * to work properly, may need modified if other fields are added.
+ * @constructor cookie
+ *  cookie
+ */
+
+
+/**
+ * Retrieves the username cookie
+ */
+function getUsernameCookie(){
+    var temp = document.cookie.split(';');
+    return temp[0].substring(14,temp[0].length);
+}
+
+/**
+ * clears the username field in the cookie.
+ */
+function deleteUsernameCookie(){
+    document.cookie = "cynonusername=";
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cookie%25250A%252520cookie.html">cookie
+ cookie</a></li></ul><h3>Global</h3><ul><li><a href="global.html#absolute_login">absolute_login</a></li><li><a href="global.html#create_post_by_url">create_post_by_url</a></li><li><a href="global.html#create_thread">create_thread</a></li><li><a href="global.html#deleteUsernameCookie">deleteUsernameCookie</a></li><li><a href="global.html#get_board_threads_from_url">get_board_threads_from_url</a></li><li><a href="global.html#get_feature_posts">get_feature_posts</a></li><li><a href="global.html#get_thread_posts">get_thread_posts</a></li><li><a href="global.html#get_thread_posts_by_url">get_thread_posts_by_url</a></li><li><a href="global.html#get_thread_posts_dyn">get_thread_posts_dyn</a></li><li><a href="global.html#getUsernameCookie">getUsernameCookie</a></li><li><a href="global.html#initiate_load">initiate_load</a></li><li><a href="global.html#loadPage">loadPage</a></li><li><a href="global.html#retrieve_home_page_boards">retrieve_home_page_boards</a></li><li><a href="global.html#setUsernameCookie">setUsernameCookie</a></li><li><a href="global.html#test_url">test_url</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 28 2018 11:24:17 GMT-0500 (CDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

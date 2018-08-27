@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: home_pagejs.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: home_pagejs.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>$(document).ready(function() {
+
+    $.get("../../php_resources/retrieve_content/get_featured_posts.php",
+        function(JSONObject, status){
+        //Need to figure out how to break this apart into individual pieces
+         var jsonArray = JSON.parse(JSONObject);
+        $("#featured-post0-title").html(jsonArray[0].title);
+        $("#featured-post1-title").html(jsonArray[1].title);
+        $("#featured-post2-title").html(jsonArray[2].title);
+
+        $("#featured-post0-content").html(jsonArray[0].content);
+        $("#featured-post1-content").html(jsonArray[1].content);
+        $("#featured-post2-content").html(jsonArray[2].content);
+    });
+    //WIP
+    /*
+    $.get("../../php_resources/retrieve_content/get_featured_boards.php",
+        function(JSONObject){
+            var featBoards = JSON.parse(JSONObject);
+            //alert(JSON.stringify(test[0].name) + JSON.stringify(test[1].name) + JSON.stringify(test[2].name));
+            for(var i = 0; i &lt; featBoards.size; i++){
+                var boardName = featBoards[i].name;
+                var boardDescription = featBoards[i].description;
+                var boardAddress =  '../html/threadview.html?' + featBoards[i].board_url;
+                var newTableHeadVal = ['&lt;th>',
+                                        '&lt;a href = ' + boardAddress + '>' + boardName + '&lt;/a>',
+                                        '&lt;/th>'];
+                var newTableRowVal = ['&lt;tr>',
+                    '&lt;a href = ' + boardAddress + '>' + boardDescription + '&lt;/a>',
+                    '&lt;/tr>'];
+
+                $("#featBoardTitles").append(newTableHeadVal);
+                $("#featBoardContent").append(newTableRowVal);
+            }
+
+        });
+    */
+    //get and display all boards in the "boards" section of homepage.html.
+    $.post("../../php_resources/retrieve_content/get_all_boards.php",
+        {
+            board_id: 0,
+        },
+        function(JSONObject, status){
+            var boardList = JSON.parse(JSONObject);
+
+            // Appends the boards as links to their respective threadview pages.
+            for(var i = 0; i &lt; boardList.length; i++){
+                var boardUrl = boardList[i].board_url;
+                //url is an issue on my computer, needs more testing
+                //This seems to fix it, make sure that it works for actual server
+                var linkAddress = '../html/threadview.html?' + boardUrl;
+                var boardName = boardList[i].name;
+                var newLink = ['&lt;p>' ,
+                                '&lt;a href = ' + linkAddress + '>' + boardName + '&lt;/a>',
+                            '&lt;/p>'];
+
+                $("#boardList").append(newLink);
+            }
+        });
+
+
+});
+
+/**
+ * Retrieves all boards in the boards portion of our mysql database to display.
+ * Not static as the addition of new boards is a possibility.
+ * @param {int} status
+ *  Provides an exit code for the response to the server.
+ */
+function retrieve_home_page_boards(status){
+    $.post("../../php_resources/retrieve_content/get_all_boards.php",
+        {
+            board_id: 0,
+        },
+        function(JSONObject, status){
+            var boardList = JSON.parse(JSONObject);
+
+            // Appends the boards as links to their respective threadview pages.
+            for(var i = 0; i &lt; boardList.length; i++){
+                var boardUrl = boardList[i].board_url;
+                //url is an issue on my computer, needs more testing
+                //This seems to fix it, make sure that it works for actual server
+                var linkAddress = '../html/threadview.html?' + boardUrl;
+                var boardName = boardList[i].name;
+                var newLink = ['&lt;p>' ,
+                    '&lt;a href = ' + linkAddress + '>' + boardName + '&lt;/a>',
+                    '&lt;/p>'];
+
+                $("#boardList").append(newLink);
+            }
+        });
+}
+
+/**
+ *
+ * Retrieves random posts to encourage and promote discussion
+ * @param {int} status
+ *  Provides an exit code for the response to the server.
+ */
+function get_feature_posts(status){
+    $.get("../../php_resources/retrieve_content/get_featured_posts.php",
+        function(JSONObject, status){
+            //Need to figure out how to break this apart into individual pieces
+            var jsonArray = JSON.parse(JSONObject);
+            $("#featured-post0-title").html(jsonArray[0].title);
+            $("#featured-post1-title").html(jsonArray[1].title);
+            $("#featured-post2-title").html(jsonArray[2].title);
+
+            $("#featured-post0-content").html(jsonArray[0].content);
+            $("#featured-post1-content").html(jsonArray[1].content);
+            $("#featured-post2-content").html(jsonArray[2].content);
+        });
+}
+
+/**
+ * Retrieves needed information, passes exit codes to needed places.
+ */
+function initiate_load(){
+
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cookie%25250A%252520cookie.html">cookie
+ cookie</a></li></ul><h3>Global</h3><ul><li><a href="global.html#absolute_login">absolute_login</a></li><li><a href="global.html#create_post_by_url">create_post_by_url</a></li><li><a href="global.html#create_thread">create_thread</a></li><li><a href="global.html#deleteUsernameCookie">deleteUsernameCookie</a></li><li><a href="global.html#get_board_threads_from_url">get_board_threads_from_url</a></li><li><a href="global.html#get_feature_posts">get_feature_posts</a></li><li><a href="global.html#get_thread_posts">get_thread_posts</a></li><li><a href="global.html#get_thread_posts_by_url">get_thread_posts_by_url</a></li><li><a href="global.html#get_thread_posts_dyn">get_thread_posts_dyn</a></li><li><a href="global.html#getUsernameCookie">getUsernameCookie</a></li><li><a href="global.html#initiate_load">initiate_load</a></li><li><a href="global.html#loadPage">loadPage</a></li><li><a href="global.html#retrieve_home_page_boards">retrieve_home_page_boards</a></li><li><a href="global.html#setUsernameCookie">setUsernameCookie</a></li><li><a href="global.html#test_url">test_url</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 28 2018 11:24:17 GMT-0500 (CDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

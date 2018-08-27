@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: threadviewScript.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: threadviewScript.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @public document onload
+ * @author ben escobar vc_7_cynon
+ * Postview's default behavior, goes about and loads the page after calling some methods.
+ */
+function loadPage(){
+
+}
+
+/**
+ * Creates a thread given a subject, body, and url value
+ * @param {string} subjVal
+ *  Desired subject attribute to be posted
+ * @param {string} bodyVal
+ *  The intended body for the new post, given the url
+ * @param {string} boardUrl
+ *  The url, for most of the content, for the new post, given via url posted to php
+ */
+function create_thread(subjVal, bodyVal, boardUrl){
+    $.ajax({
+        type: "POST",
+        url: '../../php_resources/create_content/create_thread.php',
+        //takes subject.. the echo in function_page.php is making this come up
+        data: {board_url:boardUrl,name:subjVal,description:bodyVal,thread_url:boardUrl+"/"+subjVal},
+        success: function (data){
+            // alert("post thread successful (php one)");
+            //alert(data);
+            let newClientPost = `&lt;div class="border border-primary">
+                            &lt;div class ="container-fluid">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">
+                                        &lt;h4>${subjVal}&lt;/h4>
+                                        &lt;a>${bodyVal}&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+            $("#dummy").prepend(newClientPost);
+        }
+    });
+}
+/**
+ * Obtains an individual thread's posts given a thread's url
+ * @param {string} targetThreadUrl
+ *  The current post attribute from the url used to fetch the new posts.
+ * @param {string} subjVal
+ *  The intended subject for the new post, given the url
+ * @param {string} bodyVal
+ *  The intended body, most of the content, for the new post, given the url posted to php
+ * @param {int/boolean} anonflag
+ *  Flag that will determine if, when fetching the post back again, his/her username will appear. posted in php
+ */
+function create_post_by_url(targetThread, subjVal, bodyVal, anonflag){
+    $.ajax({
+        type: "POST",
+        url: '../../php_resources/create_content/create_post_by_url.php',
+        //takes subject.. the echo in function_page.php is making this come up
+        data: {thread_url:targetThread,title:subjVal,content:bodyVal,anonymous:anonflag},
+        success: function (data){
+            alert("post successful (php one)");
+        }
+    });
+}
+
+/**
+ * Obtains an individual boards's threads given a board's url
+ * @param {string} currentBoardName
+ *  The current post attribute from the url used to fetch the new posts.
+ */
+function get_board_threads_from_url(boardUrl) {
+    $.ajax({
+        type: "POST",
+        data : {board_url: boardUrl},
+        url: '../../php_resources/retrieve_content/get_board_threads_from_url.php',
+        dataType: "json",
+        success: function(JSONObject){
+            //alert("getting board threads");
+            // alert("post worked");
+            //Associative array with keys "name", "description", "num_posts", "date_created"
+            for(key in JSONObject){
+                // alert("inside json object");
+                if(JSONObject.hasOwnProperty(key)){
+                    //alert("test");
+                    let newPost = `&lt;div class="border border-primary">
+                            &lt;div class ="container-fluid"">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">
+
+                                        &lt;h6>&lt;a>Thread ID:&lt;/a>&lt;a>${JSONObject[key]["thread_id"]}&lt;/a>
+                                        &lt;a>| ${JSONObject[key]["date_created"]}&lt;/a>&lt;a>: &lt;/a>
+                                        &lt;a>Num posts: ${JSONObject[key]["num_posts"]}&lt;/a>
+                                        &lt;h4>name:&lt;/h4>&lt;h4 id="nameThreadID${JSONObject[key]["thread_id"]}">${JSONObject[key]["name"]}&lt;/h4>
+                                        &lt;a>${JSONObject[key]["description"]}&lt;/a>
+                                        &lt;a id="viewThreadID${JSONObject[key]["thread_id"]}">view/update&lt;/a>
+                                        &lt;a id="collapseID${JSONObject[key]["thread_id"]}" style="display: none">collapse&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                                &lt;div id="hideID${JSONObject[key]["thread_id"]}">
+                                &lt;div id="appendID${JSONObject[key]["thread_id"]}">&lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+                    $("body").append(newPost);
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Obtains an individual thread's posts given a thread's ID/URL
+ * @param {string} targetThreadID
+ *  The current thread attribute that will post to a php function and return posts
+ */
+function get_thread_posts(targetThreadID){
+    $.ajax({
+        type: "POST",
+        data : {thread_id: targetThreadID},
+        url: '../../php_resources/retrieve_content/get_thread_posts.php',
+        dataType: "json",
+        success: function(JSONObject){
+            alert("thread_id posted (php posted) successfully!");
+            //removes (shouldn't do anything if not there) and adds again to prevent dups
+            $(`#subappendID${targetThreadID}`).remove();
+            let subappendHTML = `&lt;div id="subappendID${targetThreadID}">&lt;/div>`;
+            $(`#appendID${targetThreadID}`).append(subappendHTML);
+            //JSON: Associative array with keys "name", "description", "num_posts", "date_created"
+            for(key in JSONObject){
+                if(JSONObject.hasOwnProperty(key)){
+                    //appends thread immediately to client view
+                    let newPost = `&lt;div class="border border-primary" >
+                            &lt;div class ="container-fluid" style="background-color: antiquewhite;">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">                                
+                                        &lt;h6>&lt;a>Thread ID:&lt;/a>&lt;a>${targetThreadID}&lt;/a>
+                                        &lt;a>Post ID:&lt;/a>&lt;a>${JSONObject[key]["post_id"]}&lt;/a>  
+                                        &lt;a>| test&lt;/a>&lt;a>: &lt;/a>
+                                        &lt;a>test&lt;/a>
+                                        &lt;h4>${JSONObject[key]["username"]}&lt;/h4>
+                                        &lt;h4>${JSONObject[key]["title"]}&lt;/h4>
+                                        &lt;a>${JSONObject[key]["content"]}&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+                    //two different append div's to allow deletion / reloading of posts when rq'd
+                    $(`#subappendID${targetThreadID}`).append(newPost);
+                }
+            }
+            //makes collapse appear if not already here, won't take it away if its needed
+            if($(`#collapseID${targetThreadID}`).css('display')=='none') {
+                $(`#collapseID${targetThreadID}`).toggle();
+            }
+        }
+    });
+}
+/**
+ * Obtains an individual thread's posts given a thread's ID/URL, intended for use on mobile
+ * @param {string} targetThreadID
+ *  The current thread attribute that will post to a php function and return posts dynamically
+ */
+function get_thread_posts_dyn(targetThreadID){
+    $.ajax({
+        type: "POST",
+        data : {thread_id: targetThreadID},
+        url: '../../php_resources/retrieve_content/get_thread_posts.php',
+        dataType: "json",
+        success: function(JSONObject){
+            alert("thread_id posted (php posted) successfully!");
+            //removes (shouldn't do anything if not there) and adds again to prevent dups
+            $(`#subappendID${targetThreadID}`).remove();
+            let subappendHTML = `&lt;div id="subappendID${targetThreadID}">&lt;/div>`;
+            $(`#appendID${targetThreadID}`).append(subappendHTML);
+            //JSON: Associative array with keys "name", "description", "num_posts", "date_created"
+            for(key in JSONObject){
+                if(JSONObject.hasOwnProperty(key)){
+                    //appends thread immediately to client view
+                    let newPost = `&lt;div class="border border-primary" >
+                            &lt;div class ="container-fluid" style="background-color: antiquewhite;">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">                                
+                                        &lt;h6>&lt;a>Thread ID:&lt;/a>&lt;a>${targetThreadID}&lt;/a>
+                                        &lt;a>Post ID:&lt;/a>&lt;a>${JSONObject[key]["post_id"]}&lt;/a>  
+                                        &lt;a>| test&lt;/a>&lt;a>: &lt;/a>
+                                        &lt;a>test&lt;/a>
+                                        &lt;h4>${JSONObject[key]["username"]}&lt;/h4>
+                                        &lt;h4>${JSONObject[key]["title"]}&lt;/h4>
+                                        &lt;a>${JSONObject[key]["content"]}&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+                    //two different append div's to allow deletion / reloading of posts when rq'd
+                    $(`#subappendID${targetThreadID}`).append(newPost);
+                }
+            }
+            //makes collapse appear if not already here, won't take it away if its needed
+            if($(`#collapseID${targetThreadID}`).css('display')=='none') {
+                $(`#collapseID${targetThreadID}`).toggle();
+            }
+        }
+    });
+}
+
+$(document).ready(function() {
+    let currentBoardName = location.search.replace('?', '').split('=')[0];
+    get_board_threads_from_url(currentBoardName);
+
+    //onclick view thread's posts on a different page
+    $(document).on('click', '[id^=nameThreadID]', function(event){
+        let targetThreadID = event.target.id.slice(12);
+        let targString = "nameThreadID"+targetThreadID;
+        window.location = '/frontend/html/postview.html?'+currentBoardName+"/"+$("#"+targString).html().toLowerCase();
+    });
+
+    //onclick of dynamically generated ViewThread, generate threads posts without changing page
+    $(document).on('click', '[id^=viewThreadID]', function(event){
+        let targetThreadID = event.target.id.slice(12);
+        alert(targetThreadID);
+        get_thread_posts_dyn(targetThreadID);
+    });
+
+    //onclick hide dynamically fetched threads
+    $(document).on('click', '[id^=collapseID]', function(event){
+        let targetCollapseID = event.target.id.slice(7);
+        $(`#appendID${targetCollapseID}`).toggle();
+    });
+
+    //onclick creates thread
+   $("#submitBtn").click(function(){
+        //grabbing subject, body
+        //alert("pushed thread button");
+        let subjVal = $("#inputTitle").val();
+        let bodyVal = $("#inputBody").val();
+        create_thread(subjVal,bodyVal,currentBoardName)
+
+   });
+
+   //onclick, post to desired thread
+    $("#postBtn").click(function(){
+        anonflag = 0;
+        let targetThread = $("#postOptionsInput").val();
+        let subjVal = $("#postSubjectInput").val();
+        let bodyVal = $("#postInputBody").val();
+        if(document.getElementById("anonPostToggle").checked){
+            alert("checked");
+            anonflag = 1;
+        }
+    });
+
+    //onclick view newThread form
+    $("#newThreadBt").click(function () {
+        $("#newThreadForm").toggle();
+    });
+
+    /**
+     * Creates a thread given a subject, body, and url value
+     * @param {string} subjVal
+     *  Desired subject attribute to be posted
+     * @param {string} bodyVal
+     *  The intended body for the new post, given the url
+     * @param {string} boardUrl
+     *  The url, for most of the content, for the new post, given via url posted to php
+     */
+function create_thread(subjVal, bodyVal, boardUrl){
+    $.ajax({
+        type: "POST",
+        url: '../../php_resources/create_content/create_thread.php',
+        //takes subject.. the echo in function_page.php is making this come up
+        data: {board_url:boardUrl,name:subjVal,description:bodyVal,thread_url:boardUrl+"/"+subjVal},
+        success: function (data){
+            // alert("post thread successful (php one)");
+            //alert(data);
+            let newClientPost = `&lt;div class="border border-primary">
+                            &lt;div class ="container-fluid">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">
+                                        &lt;h4>${subjVal}&lt;/h4>
+                                        &lt;a>${bodyVal}&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+            $("#dummy").prepend(newClientPost);
+        }
+    });
+}
+    /**
+     * Obtains an individual thread's posts given a thread's url
+     * @param {string} targetThreadUrl
+     *  The current post attribute from the url used to fetch the new posts.
+     * @param {string} subjVal
+     *  The intended subject for the new post, given the url
+     * @param {string} bodyVal
+     *  The intended body, most of the content, for the new post, given the url posted to php
+     * @param {int/boolean} anonflag
+     *  Flag that will determine if, when fetching the post back again, his/her username will appear. posted in php
+     */
+function create_post_by_url(targetThread, subjVal, bodyVal, anonflag){
+    $.ajax({
+        type: "POST",
+        url: '../../php_resources/create_content/create_post_by_url.php',
+        //takes subject.. the echo in function_page.php is making this come up
+        data: {thread_url:targetThread,title:subjVal,content:bodyVal,anonymous:anonflag},
+        success: function (data){
+            alert("post successful (php one)");
+        }
+    });
+}
+
+    /**
+     * Obtains an individual boards's threads given a board's url
+     * @param {string} currentBoardName
+     *  The current post attribute from the url used to fetch the new posts.
+     */
+function get_board_threads_from_url(boardUrl) {
+    $.ajax({
+        type: "POST",
+        data : {board_url: boardUrl},
+        url: '../../php_resources/retrieve_content/get_board_threads_from_url.php',
+        dataType: "json",
+        success: function(JSONObject){
+            //alert("getting board threads");
+            // alert("post worked");
+            //Associative array with keys "name", "description", "num_posts", "date_created"
+            for(key in JSONObject){
+                // alert("inside json object");
+                if(JSONObject.hasOwnProperty(key)){
+                    //alert("test");
+                    let newPost = `&lt;div class="border border-primary">
+                            &lt;div class ="container-fluid"">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">
+
+                                        &lt;h6>&lt;a>Thread ID:&lt;/a>&lt;a>${JSONObject[key]["thread_id"]}&lt;/a>
+                                        &lt;a>| ${JSONObject[key]["date_created"]}&lt;/a>&lt;a>: &lt;/a>
+                                        &lt;a>Num posts: ${JSONObject[key]["num_posts"]}&lt;/a>
+                                        &lt;h4>name:&lt;/h4>&lt;h4 id="nameThreadID${JSONObject[key]["thread_id"]}">${JSONObject[key]["name"]}&lt;/h4>
+                                        &lt;a>${JSONObject[key]["description"]}&lt;/a>
+                                        &lt;a id="viewThreadID${JSONObject[key]["thread_id"]}">view/update&lt;/a>
+                                        &lt;a id="collapseID${JSONObject[key]["thread_id"]}" style="display: none">collapse&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                                &lt;div id="hideID${JSONObject[key]["thread_id"]}">
+                                &lt;div id="appendID${JSONObject[key]["thread_id"]}">&lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+                    $("body").append(newPost);
+                }
+            }
+        }
+    });
+}
+
+    /**
+     * Obtains an individual thread's posts given a thread's ID/URL
+     * @param {string} targetThreadID
+     *  The current thread attribute that will post to a php function and return posts
+     */
+function get_thread_posts(targetThreadID){
+    $.ajax({
+        type: "POST",
+        data : {thread_id: targetThreadID},
+        url: '../../php_resources/retrieve_content/get_thread_posts.php',
+        dataType: "json",
+        success: function(JSONObject){
+            alert("thread_id posted (php posted) successfully!");
+            //removes (shouldn't do anything if not there) and adds again to prevent dups
+            $(`#subappendID${targetThreadID}`).remove();
+            let subappendHTML = `&lt;div id="subappendID${targetThreadID}">&lt;/div>`;
+            $(`#appendID${targetThreadID}`).append(subappendHTML);
+            //JSON: Associative array with keys "name", "description", "num_posts", "date_created"
+            for(key in JSONObject){
+                if(JSONObject.hasOwnProperty(key)){
+                    //appends thread immediately to client view
+                    let newPost = `&lt;div class="border border-primary" >
+                            &lt;div class ="container-fluid" style="background-color: antiquewhite;">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">                                
+                                        &lt;h6>&lt;a>Thread ID:&lt;/a>&lt;a>${targetThreadID}&lt;/a>
+                                        &lt;a>Post ID:&lt;/a>&lt;a>${JSONObject[key]["post_id"]}&lt;/a>  
+                                        &lt;a>| test&lt;/a>&lt;a>: &lt;/a>
+                                        &lt;a>test&lt;/a>
+                                        &lt;h4>${JSONObject[key]["username"]}&lt;/h4>
+                                        &lt;h4>${JSONObject[key]["title"]}&lt;/h4>
+                                        &lt;a>${JSONObject[key]["content"]}&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+                    //two different append div's to allow deletion / reloading of posts when rq'd
+                    $(`#subappendID${targetThreadID}`).append(newPost);
+                }
+            }
+            //makes collapse appear if not already here, won't take it away if its needed
+            if($(`#collapseID${targetThreadID}`).css('display')=='none') {
+                $(`#collapseID${targetThreadID}`).toggle();
+            }
+        }
+    });
+}
+    /**
+     * Obtains an individual thread's posts given a thread's ID/URL, intended for use on mobile
+     * @param {string} targetThreadID
+     *  The current thread attribute that will post to a php function and return posts dynamically
+     */
+function get_thread_posts_dyn(targetThreadID){
+    $.ajax({
+        type: "POST",
+        data : {thread_id: targetThreadID},
+        url: '../../php_resources/retrieve_content/get_thread_posts.php',
+        dataType: "json",
+        success: function(JSONObject){
+            alert("thread_id posted (php posted) successfully!");
+            //removes (shouldn't do anything if not there) and adds again to prevent dups
+            $(`#subappendID${targetThreadID}`).remove();
+            let subappendHTML = `&lt;div id="subappendID${targetThreadID}">&lt;/div>`;
+            $(`#appendID${targetThreadID}`).append(subappendHTML);
+            //JSON: Associative array with keys "name", "description", "num_posts", "date_created"
+            for(key in JSONObject){
+                if(JSONObject.hasOwnProperty(key)){
+                    //appends thread immediately to client view
+                    let newPost = `&lt;div class="border border-primary" >
+                            &lt;div class ="container-fluid" style="background-color: antiquewhite;">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">                                
+                                        &lt;h6>&lt;a>Thread ID:&lt;/a>&lt;a>${targetThreadID}&lt;/a>
+                                        &lt;a>Post ID:&lt;/a>&lt;a>${JSONObject[key]["post_id"]}&lt;/a>  
+                                        &lt;a>| test&lt;/a>&lt;a>: &lt;/a>
+                                        &lt;a>test&lt;/a>
+                                        &lt;h4>${JSONObject[key]["username"]}&lt;/h4>
+                                        &lt;h4>${JSONObject[key]["title"]}&lt;/h4>
+                                        &lt;a>${JSONObject[key]["content"]}&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+                    //two different append div's to allow deletion / reloading of posts when rq'd
+                    $(`#subappendID${targetThreadID}`).append(newPost);
+                }
+            }
+            //makes collapse appear if not already here, won't take it away if its needed
+            if($(`#collapseID${targetThreadID}`).css('display')=='none') {
+                $(`#collapseID${targetThreadID}`).toggle();
+            }
+        }
+    });
+}
+
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cookie%25250A%252520cookie.html">cookie
+ cookie</a></li></ul><h3>Global</h3><ul><li><a href="global.html#absolute_login">absolute_login</a></li><li><a href="global.html#create_post_by_url">create_post_by_url</a></li><li><a href="global.html#create_thread">create_thread</a></li><li><a href="global.html#deleteUsernameCookie">deleteUsernameCookie</a></li><li><a href="global.html#get_board_threads_from_url">get_board_threads_from_url</a></li><li><a href="global.html#get_feature_posts">get_feature_posts</a></li><li><a href="global.html#get_thread_posts">get_thread_posts</a></li><li><a href="global.html#get_thread_posts_by_url">get_thread_posts_by_url</a></li><li><a href="global.html#get_thread_posts_dyn">get_thread_posts_dyn</a></li><li><a href="global.html#getUsernameCookie">getUsernameCookie</a></li><li><a href="global.html#initiate_load">initiate_load</a></li><li><a href="global.html#loadPage">loadPage</a></li><li><a href="global.html#retrieve_home_page_boards">retrieve_home_page_boards</a></li><li><a href="global.html#setUsernameCookie">setUsernameCookie</a></li><li><a href="global.html#test_url">test_url</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 28 2018 11:24:17 GMT-0500 (CDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

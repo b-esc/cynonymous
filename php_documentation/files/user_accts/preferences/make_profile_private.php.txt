@@ -1,0 +1,26 @@
+<?php
+//Christian Lucht
+include("../../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+make_profile_private($dbh, 2);
+
+/**
+ * Sets the specified user's profile to be invisible to other viewers.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $uid The id of the user who is making his profile private.
+ * @return void
+ */
+function make_profile_private($dbh, $uid){
+	$sql = "UPDATE user_preferences SET private = 1 WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+
+}

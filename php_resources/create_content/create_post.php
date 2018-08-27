@@ -1,0 +1,87 @@
+<?php
+//Ryan Buls
+session_start();
+include("../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+/*testing values:
+        thread_id = 1
+        board_id = 1b
+        uid = 7
+        anonymous = 0*/
+if(isset($_SESSION["uid"])){
+    create_post($dbh, $_POST["thread_id"], $_POST["board_id"], $_SESSION["uid"], sanitize($_POST["title"]), sanitize($_POST["content"]), (int)$_POST["anonymous"]);
+}else{
+    echo "Not Logged In";
+}
+// create_post($dbh, 22, 1, 1232, 'test', 'test post', 0);
+//create_post($dbh, 1, 1, 7, $_POST["title"], $_POST["content"], 0);
+
+/**
+ * Creates a post with the given parameters
+ *
+ * @param PDO_DB_CONNECTION $dbh The database connection to use.
+ * @param int $thread_id The id of the thread the post belongs to.
+ * @param int $board_id The id of the board the post belongs to.
+ * @param int $creator_uid The user id of the creator of the post.
+ * @param string $title The title of the post.
+ * @param string $content The content of the post.
+ * @param int $anonymous A 1 bit flag indicating whether the post should be stored as anonymous or not.
+ * @return void
+ */
+function create_post($dbh, $thread_id, $board_id, $creator_uid, $title, $content, $anonymous){
+    try {
+        $sql = 'insert into posts(thread_id, board_id, creator_uid, title, content,  anonymous) 
+            values(:thread_id, :board_id, :creator_uid, :title, :content, :anonymous)';
+        $sth = $dbh->prepare($sql);
+        $sth->bindValue(':thread_id', $thread_id, PDO::PARAM_INT);
+        $sth->bindValue(':board_id', $board_id, PDO::PARAM_INT);
+        $sth->bindValue(':creator_uid', $creator_uid, PDO::PARAM_INT);
+        $sth->bindValue(':title', $title, PDO::PARAM_STR);
+        $sth->bindValue(':content', $content, PDO::PARAM_STR);
+        $sth->bindValue(':anonymous', $anonymous, PDO::PARAM_INT);
+        $sth->execute();
+
+        increment_board_posts($dbh, $board_id);
+        increment_thread_posts($dbh, $thread_id);
+    } catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+
+    
+}
+/**
+ * Increments the count of posts on the board.
+ *
+ * @param PDO_DB_CONNECTION $dbh The database connection to use.
+ * @param int $board_id The id of the board to change.
+ * @return void
+ */
+function increment_board_posts($dbh, $board_id){
+    $sql = 
+        "update boards 
+        set num_posts = num_posts + 1
+        where board_id = :board_id";
+    $sth = $dbh->prepare($sql);
+    $sth->bindValue(":board_id", $board_id, PDO::PARAM_INT);
+    $sth->execute();
+}
+/**
+ * Increments the count of posts on the thread.
+ *
+ * @param PDO_DB_CONNECTION $dbh The database connection to use.
+ * @param int $board_id The id of the thread to change.
+ * @return void
+ */
+function increment_thread_posts($dbh, $thread_id){
+    $sql = 
+        "update threads
+        set num_posts = num_posts + 1
+        where thread_id = :thread_id";
+    $sth = $dbh->prepare($sql);
+    $sth->bindValue(":thread_id", $thread_id, PDO::PARAM_INT);
+    $sth->execute();
+}
+
+echo 'Post created successfully!';

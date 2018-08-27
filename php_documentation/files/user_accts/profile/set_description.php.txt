@@ -1,0 +1,27 @@
+<?php
+//Christian Lucht
+include("../../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+set_description($dbh, 'This is really like a bio but I guess I can write whatever I want.', 2);
+
+/**
+ * Used to set the bio of the user.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param string $description The string of the desired description.
+ * @param int $uid The id of the user whose description is to be set.
+ * @return void
+ */
+function set_description($dbh, $description, $uid){
+	$sql = "UPDATE user_info SET description = :description WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':description', $description, PDO::PARAM_STR);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+}

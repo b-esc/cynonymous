@@ -1,0 +1,51 @@
+<?php
+//Christian Lucht
+session_start();
+include("../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+// create_board($dbh, 2819, "Sports", "This board is all about Sports", 1, sports);
+// create_board($dbh, 2819, "Cars", "This board is all about Cars", 1, cars);
+// create_board($dbh, 2819, "Iowa State", "This board is all about Iowa State", 1, iowastate);
+// create_board($dbh, 2819, "Food", "This board is all about Food", 1, food);
+// create_board($dbh, 2819, "Extinct Animals", "This board is all about Extinct Animals", 1, extinctanimals);
+// create_board($dbh, 2819, "Dogs", "This board is all about Dogs", 1, dogs);
+// create_board($dbh, 2819, "Cats", "This board is all about Cats", 1, cats);
+// create_board($dbh, 2819, "Recieving a Good Grade", "Please give us a good grade Vamsi :)", 1, recievingagoodgrade);
+
+//create_board($dbh, 2819, "boats", "This board is all about boats", 1);
+if(isset($_SESSION["uid"])){
+	create_board($dbh, $_SESSION["uid"], $_POST["name"], $_POST["description"], (int)$_POST["family_friendly"], $_POST["board_url"]);
+}else{
+    echo "Not Logged In";
+}
+
+/**
+* Creates a new board for users to access
+*
+* @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+* @param int $creator_uid The id of the user creating the post
+* @param string $name The name of the board being created
+* @param string $description The description of the content that can be found on this board
+* @param int $family_friendly Value of 1 or 0 which signals if a board is family friendly or not
+* @param string $board_url The all lowercase no spaces name of the board
+* @return void
+*/
+function create_board($dbh, $creator_uid, $name, $description, $family_friendly, $board_url){
+	$sql = "insert into boards(creator_uid, name, description, family_friendly, board_url) 
+	values(:creator_uid, :name, :description, :family_friendly, :board_url)";
+	$sth = $dbh->prepare($sql);
+	try{
+		$sth->bindValue(":creator_uid", $creator_uid, PDO::PARAM_INT);
+		$sth->bindValue(":name", $name, PDO::PARAM_STR);
+		$sth->bindValue(":description", $description, PDO::PARAM_STR);
+		$sth->bindValue(":family_friendly", $family_friendly, PDO::PARAM_INT);
+		$sth->bindValue(":board_url", $board_url, PDO::PARAM_STR);
+		$sth->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}	
+}
+
+echo "Board created successfully!";

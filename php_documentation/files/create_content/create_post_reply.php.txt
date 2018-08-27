@@ -1,0 +1,92 @@
+<?php
+//Christian Lucht
+include("../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+create_post_reply($dbh, 22, 1, 1232, 107, 'test_reply', 'test testing.', 0);
+
+/**
+ * Creates a reply to a post that already exists.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $thread_id The id number of the thread this post will be on.
+ * @param int $board_id The id number of the board this post will be on.
+ * @param int $creator_uid The id of the user creating this post reply.
+ * @param int $parent_id The id number of the post being responded to.
+ * @param string $title The title of the post reply.
+ * @param string $content The content of the post reply.
+ * @param int $anonymous A bit of 0 for a public post or 1 to keep the user anonymous. 
+ * @return void
+ */
+function create_post_reply($dbh, $thread_id, $board_id, $creator_uid, $parent_id, $title, $content, $anonymous){
+	$nest_level;
+	$sql = "SELECT nest_level FROM posts WHERE post_id = :parent_id";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':parent_id', $parent_id, PDO::PARAM_INT);
+		$sth->execute();
+		$nest_level = $sth->fetchAll();
+		$nest_level = $nest_level[0]['nest_level'];
+	} catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+   echo $nest_level;
+
+    try {
+        $sql = 'insert into posts(thread_id, board_id, creator_uid, parent_id, nest_level, title, content, anonymous) 
+            values(:thread_id, :board_id, :creator_uid, :parent_id, :nest_level, :title, :content, :anonymous)';
+        $sth = $dbh->prepare($sql);
+        $sth->bindValue(':thread_id', $thread_id, PDO::PARAM_INT);
+        $sth->bindValue(':board_id', $board_id, PDO::PARAM_INT);
+        $sth->bindValue(':creator_uid', $creator_uid, PDO::PARAM_INT);
+        $sth->bindValue(':parent_id', $parent_id, PDO::PARAM_INT);
+        $sth->bindValue(':nest_level', $nest_level + 1, PDO::PARAM_INT);
+        $sth->bindValue(':title', $title, PDO::PARAM_STR);
+        $sth->bindValue(':content', $content, PDO::PARAM_STR);
+        $sth->bindValue(':anonymous', $anonymous, PDO::PARAM_INT);
+        $sth->execute();
+
+        increment_board_posts($dbh, $board_id);
+        increment_thread_posts($dbh, $thread_id);
+    } catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+
+}
+
+/**
+ * Increments the number of posts that are on the board by 1.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $board_id The id number of the board this post will be on.
+ * @return void
+ */
+function increment_board_posts($dbh, $board_id){
+    $sql = 
+        "update boards 
+        set num_posts = num_posts + 1
+        where board_id = :board_id";
+    $sth = $dbh->prepare($sql);
+    $sth->bindValue(":board_id", $board_id, PDO::PARAM_INT);
+    $sth->execute();
+}
+
+/**
+ * Increments the number of posts on the specified thread by 1.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $thread_id The id number of the thread this post will be on.
+ * @return void
+ */
+function increment_thread_posts($dbh, $thread_id){
+    $sql = 
+        "update threads
+        set num_posts = num_posts + 1
+        where thread_id = :thread_id";
+    $sth = $dbh->prepare($sql);
+    $sth->bindValue(":thread_id", $thread_id, PDO::PARAM_INT);
+    $sth->execute();
+}
+
+echo 'Post replied to successfully!';

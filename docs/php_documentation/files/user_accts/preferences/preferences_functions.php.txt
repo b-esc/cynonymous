@@ -1,0 +1,59 @@
+<?php
+include("../../utilities.php");
+
+/**
+ * Sets the specified user's profile to be invisible to other viewers.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $uid The id of the user who is making his profile private.
+ * @return void
+ */
+function make_profile_private($dbh, $uid){
+	$sql = "UPDATE user_preferences SET private = 1 WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+
+}
+
+/**
+ * Sets the specified user's profile to be visible to other viewers.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $uid The id of the user who is making his profile public.
+ * @return void
+ */
+function make_profile_public($dbh, $uid){
+	$sql = "UPDATE user_preferences SET private = 0 WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+}
+
+/**
+ * Sets the desired background color for the user.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param string $color The six digit html color code of the desired color preceeded by a pound.
+ * @param int $uid The id of the user who is making his profile public.
+ * @return void
+ */
+function set_background_color($dbh, $color, $uid){
+	$sql = "UPDATE user_preferences SET background_color = :color WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':color', $color, PDO::PARAM_STR);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+}

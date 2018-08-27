@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: postviewScript.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: postviewScript.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @public document onload
+ * @author ben escobar vc_7_cynon
+ * Postview's default behavior, goes about and loads the page after calling some methods.
+ */
+function loadPage(){
+
+}
+$(document).ready(function() {
+    let currentThreadName = location.search.replace('?', '').split('=')[0];
+
+    get_thread_posts_by_url(currentThreadName);
+
+    $("#postBtn").click(function(){
+        anonflag = 0;
+        let targetThread = $("#postOptionsInput").val();
+        let subjVal = $("#postSubjectInput").val();
+        let bodyVal = $("#postInputBody").val();
+        if(document.getElementById("anonPostToggle").checked){
+            alert("checked");
+            anonflag = 1;
+        }
+        create_post_by_url(targetThread,subjVal,bodyVal,anonflag);
+    });
+
+    $("#newThreadBt").click(function () {
+        alert("todo: remove / new options");
+    });
+
+});
+
+/**
+ * Obtains an individual thread's posts given a thread's url
+ * @param {string} currentThreadName
+ *  The current post attribute from the url used to fetch the new posts.
+ */
+function get_thread_posts_by_url(currentThreadName){
+    $.ajax({
+        type: "POST",
+        data : {thread_url: currentThreadName},
+        url: '../../php_resources/retrieve_content/get_thread_posts_from_url.php',
+        dataType: "json",
+        success: function(JSONObject){
+            for(key in JSONObject){
+                if(JSONObject.hasOwnProperty(key)){
+                    let newPost = `&lt;div class="border border-primary">
+                            &lt;div class ="container-fluid"">
+                                &lt;div class="row">
+                                    &lt;div class="col-auto">
+                                        &lt;img class="img-thumbnail" src="../resources/chris1.jpg" >
+                                    &lt;/div>
+                                    &lt;div class="col-sm">
+
+                                        &lt;h6>&lt;a>post ID:&lt;/a>&lt;a>${JSONObject[key]["post_id"]}&lt;/a>
+                                        &lt;h4 id="nameThreadID${JSONObject[key]["username"]}">${JSONObject[key]["title"]}&lt;/h4>
+                                        &lt;a>${JSONObject[key]["content"]}&lt;/a>
+                                    &lt;/div>
+                                &lt;/div>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>`;
+                    $("body").append(newPost);
+                }
+            }
+        }
+    });
+}
+/**
+ * Obtains an individual thread's posts given a thread's url
+ * @param {string} targetThreadUrl
+ *  The current post attribute from the url used to fetch the new posts.
+ * @param {string} subjVal
+ *  The intended subject for the new post, given the url
+ * @param {string} bodyVal
+ *  The intended body, most of the content, for the new post, given the url
+ * @param {int/boolean} anonflag
+ *  Flag that will determine if, when fetching the post back again, his/her username will appear.
+ */
+function create_post_by_url(targetThreadUrl,subjVal,bodyVal,anonflag){
+    $.ajax({
+        type: "POST",
+        url: '../../php_resources/create_content/create_post_by_url.php',
+        data: {thread_url:targetThread,title:subjVal,content:bodyVal,anonymous:anonflag},
+        success: function (data){
+            alert("post successful (php one)");
+        }
+    });
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="cookie%25250A%252520cookie.html">cookie
+ cookie</a></li></ul><h3>Global</h3><ul><li><a href="global.html#absolute_login">absolute_login</a></li><li><a href="global.html#create_post_by_url">create_post_by_url</a></li><li><a href="global.html#create_thread">create_thread</a></li><li><a href="global.html#deleteUsernameCookie">deleteUsernameCookie</a></li><li><a href="global.html#get_board_threads_from_url">get_board_threads_from_url</a></li><li><a href="global.html#get_feature_posts">get_feature_posts</a></li><li><a href="global.html#get_thread_posts">get_thread_posts</a></li><li><a href="global.html#get_thread_posts_by_url">get_thread_posts_by_url</a></li><li><a href="global.html#get_thread_posts_dyn">get_thread_posts_dyn</a></li><li><a href="global.html#getUsernameCookie">getUsernameCookie</a></li><li><a href="global.html#initiate_load">initiate_load</a></li><li><a href="global.html#loadPage">loadPage</a></li><li><a href="global.html#retrieve_home_page_boards">retrieve_home_page_boards</a></li><li><a href="global.html#setUsernameCookie">setUsernameCookie</a></li><li><a href="global.html#test_url">test_url</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 28 2018 11:24:17 GMT-0500 (CDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

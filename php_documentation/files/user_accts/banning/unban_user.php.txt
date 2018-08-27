@@ -1,0 +1,25 @@
+<?php
+//Christian Lucht
+include("../../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+unban_user($dbh, 2);
+
+/**
+ * Allows a banned user to access the site once again.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $uid The id of the user who is to be reallowed access.
+ * @return void
+ */
+function unban_user($dbh, $uid){
+	$sql = "UPDATE user_info SET banned = 0 WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+}

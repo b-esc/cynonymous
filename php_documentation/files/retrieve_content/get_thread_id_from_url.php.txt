@@ -1,0 +1,38 @@
+<?php 
+//Ryan Buls
+    include("../utilities/utilities.php");
+
+    if(isset($_POST["thread_url"])){
+        ret_thread_id($_POST["thread_url"]);
+    }
+
+    /**
+     * Echos the integer value of the thread id that corresponds to the given url.
+     *
+     * @param string $url The url to return the thread id of.
+     * @return void
+     */
+    function ret_thread_id($url){
+        global $threadtable;
+
+        $DBH = connect_DB();
+
+        try{
+            $query = "SELECT thread_id from $threadtable WHERE thread_url = :url";
+            $STH = $DBH->prepare($query);
+
+            $STH->execute(["url" => $url]);
+        } 
+        catch(PDOException $e){
+            echo $e->getMessage();
+        }
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        if($STH->rowcount() == 1){
+            $val_arr = $STH->fetchall();
+            echo $val_arr[0]["thread_id"];
+        } else {
+            echo "ERROR";
+        }
+        $STH = null;
+        $DBH = null;
+    }

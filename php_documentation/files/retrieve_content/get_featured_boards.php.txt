@@ -1,0 +1,35 @@
+<?php
+//Christian Lucht
+include("../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+get_featured_boards($dbh);
+
+function get_featured_boards($dbh){
+	$board_arr = array();
+	//get all of the current boards
+	$sql = "SELECT board_id, name, description, num_threads num_posts, date_created, board_url FROM boards";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->execute();
+		$board_arr = $sth->fetchAll();
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+	//count the number of boards created
+	$size = count($board_arr);
+
+	//select a board from the first third, second third, and last third of created boards
+	$first = rand(0, $size / 3);
+	$second = rand($size / 3 + 1, (($size / 3) * 2));
+	$third = rand((($size / 3) * 2) + 1, $size - 1);
+
+	//get the id of each board and put it into an array
+	$id_arr = array();
+	$id_arr[] = $board_arr[$first];
+	$id_arr[] = $board_arr[$second];
+	$id_arr[] = $board_arr[$third];
+
+	echo json_encode($id_arr);
+}

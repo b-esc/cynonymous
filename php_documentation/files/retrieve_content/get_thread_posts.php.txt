@@ -1,0 +1,47 @@
+<?PHP
+    //Ryan Buls
+    include("../utilities/utilities.php");
+    
+    if(isset($_POST["thread_id"])){
+        get_posts((int)$_POST["thread_id"]);
+    }
+
+     /**
+     * Echos all posts for the corresponding thread id to the client in a json encoded associative array.
+     *
+     * @param string $thread_id THe thread id to echo the posts of.
+     * @return void
+     */
+    function get_posts($thread_id){
+        $DBH=connect_DB();
+        global $posttable, $usertable;
+        $STH;
+        
+        try { //Creates and prepares queries to be executed (for posts and userinfo)
+            $query = "SELECT $posttable.post_id, $posttable.title, $posttable.content, $posttable.anonymous, $usertable.username
+                from $posttable, $usertable WHERE $posttable.thread_id=:thread AND $usertable.id = $posttable.creator_uid
+                ORDER BY $posttable.post_id DESC";
+            $STH = $DBH->prepare($query);
+            
+            $STH -> execute(["thread" => $thread_id]);
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage();
+        }
+        //tells the query how to return the data --> As an associative array.
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        $array_to_return = $STH->fetchall();
+        $DBH = null;
+        //print_r($array_to_return);
+
+        foreach($array_to_return as $key =>$row){
+            if($row["anonymous"]){
+                $array_to_return[$key]["username"] = "ANONYMOUS";
+            }
+        }
+
+
+        echo json_encode($array_to_return);
+    }
+?>
+

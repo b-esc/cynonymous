@@ -1,0 +1,156 @@
+<?php
+//Ryan Buls
+
+session_start();
+include("../utilities.php");
+
+$dbh = connect_DB();
+
+/*testing values:
+        thread_id = 1
+        board_id = 1
+        uid = 7
+        anonymous = 0*/
+if(isset($_SESSION["uid"])){
+    $thread_id = ret_thread_id($dbh,$_POST["thread_url"]);
+    $board_id = get_board_id($dbh,$thread_id);
+    create_post($dbh, $thread_id, $board_id, $_SESSION["uid"], $_POST["title"], $_POST["content"], (int)$_POST["anonymous"]);
+}else{
+    echo "Not Logged In";
+}
+// create_post($dbh, 22, 1, 1232, 'test', 'test post', 0);
+//create_post($dbh, 1, 1, 7, $_POST["title"], $_POST["content"], 0);
+
+    /**
+     * Echos the integer value of the thread id that corresponds to the given url.
+     *
+     * @param PDO_DB_CONNECTION $DBH The database connection to use.
+     * @param string $url The url to return the thread id of.
+     * @return int The id of the thread given by the url.
+     */
+function ret_thread_id($DBH, $url){
+    global $threadtable;
+
+    //$DBH = connect_DB();
+
+    try{
+        $query = "SELECT thread_id from $threadtable WHERE thread_url = :url";
+        $STH = $DBH->prepare($query);
+
+        $STH->execute(["url" => $url]);
+    } 
+    catch(PDOException $e){
+        echo $e->getMessage();
+    }
+    $STH->setFetchMode(PDO::FETCH_ASSOC);
+    if($STH->rowcount() == 1){
+        $val_arr = $STH->fetchall();
+        $STH = null;
+        return $val_arr[0]["thread_id"];
+    } else {
+        echo "ERROR";
+    }
+    $STH = null;
+    //$DBH = null;
+}
+/**
+ * Returns the id of the board that contains the given thread.
+ *
+ * @param PDO_DB_CONNECTION $DBH The database connection to use.
+ * @param int $thread_id The id of the thread to search for.
+ * @return int The board id of the given thread.
+ */
+function get_board_id($DBH, $thread_id){
+    global $threadtable;
+
+    //$DBH = connect_DB();
+
+    try{
+        $query = "SELECT board_id from $threadtable WHERE thread_id = :id";
+        $STH = $DBH->prepare($query);
+
+        $STH->execute(["id" => $thread_id]);
+    } 
+    catch(PDOException $e){
+        echo $e->getMessage();
+    }
+    $STH->setFetchMode(PDO::FETCH_ASSOC);
+    if($STH->rowcount() == 1){
+        $val_arr = $STH->fetchall();
+        $STH = null;
+        return $val_arr[0]["board_id"];
+    } else {
+        echo "ERROR";
+    }
+    $STH = null;
+    //$DBH = null;
+}
+
+/**
+ * Creates a post with the given parameters
+ *
+ * @param PDO_DB_CONNECTION $dbh The database connection to use.
+ * @param int $thread_id The id of the thread the post belongs to.
+ * @param int $board_id The id of the board the post belongs to.
+ * @param int $creator_uid The user id of the creator of the post.
+ * @param string $title The title of the post.
+ * @param string $content The content of the post.
+ * @param int $anonymous A 1 bit flag indicating whether the post should be stored as anonymous or not.
+ * @return void
+ */
+function create_post($dbh, $thread_id, $board_id, $creator_uid, $title, $content, $anonymous){
+    try {
+        $sql = 'insert into posts(thread_id, board_id, creator_uid, title, content, anonymous) 
+            values(:thread_id, :board_id, :creator_uid, :title, :content, :anonymous)';
+        $sth = $dbh->prepare($sql);
+        $sth->bindValue(':thread_id', $thread_id, PDO::PARAM_INT);
+        $sth->bindValue(':board_id', $board_id, PDO::PARAM_INT);
+        $sth->bindValue(':creator_uid', $creator_uid, PDO::PARAM_INT);
+        $sth->bindValue(':title', $title, PDO::PARAM_STR);
+        $sth->bindValue(':content', $content, PDO::PARAM_STR);
+        $sth->bindValue(':anonymous', $anonymous, PDO::PARAM_INT);
+        $sth->execute();
+
+        increment_board_posts($dbh, $board_id);
+        increment_thread_posts($dbh, $thread_id);
+    } catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+
+    
+}
+/**
+ * Increments the count of posts on the board.
+ *
+ * @param PDO_DB_CONNECTION $dbh The database connection to use.
+ * @param int $board_id The id of the board to change.
+ * @return void
+ */
+function increment_board_posts($dbh, $board_id){
+    $sql = 
+        "update boards 
+        set num_posts = num_posts + 1
+        where board_id = :board_id";
+    $sth = $dbh->prepare($sql);
+    $sth->bindValue(":board_id", $board_id, PDO::PARAM_INT);
+    $sth->execute();
+}
+
+/**
+ * Increments the count of posts on the thread.
+ *
+ * @param PDO_DB_CONNECTION $dbh The database connection to use.
+ * @param int $board_id The id of the thread to change.
+ * @return void
+ */
+function increment_thread_posts($dbh, $thread_id){
+    $sql = 
+        "update threads
+        set num_posts = num_posts + 1
+        where thread_id = :thread_id";
+    $sth = $dbh->prepare($sql);
+    $sth->bindValue(":thread_id", $thread_id, PDO::PARAM_INT);
+    $sth->execute();
+}
+
+echo 'Post created successfully!';

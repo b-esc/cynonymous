@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!--<link rel="icon" href="../../favicon.ico">-->
+    <!--<script src="../libs/js/jquery_test/jquery-3.3.1.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
+    <script src="../libs/js/jquery-3.3.1.js"></script>
+    <script src="../javascript/profilepagejs.js"></script>
+    <script src ="../javascript/navbarScript.js"></script>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <title>cynonymous</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../libs/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+
+    <link href="../css/threadView_ss.css" rel="stylesheet">
+
+
+    <!--Here's the CSS for login and signup-->
+    <style type = "text/css">
+        #login{
+            position: absolute;
+            right: 0px;
+            display: none;
+        }
+        #signup{
+            position: absolute;
+            right: 0px;
+            display: none;
+        }
+
+        #logout-bar{
+            display: none;
+        }
+
+        #helloUser{
+            display: none;
+        }
+        #endSafari{
+            display: none;
+        }
+
+        #profilePicture{
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+
+        }
+        #newBio{
+            display: none;
+        }
+        #closeBio{
+            display: none;
+        }
+        #submitBio{
+            display: none;
+        }
+
+    </style>
+
+</head>
+
+<body class = "profile">
+<nav id = "navbar"  class ="navbar navbar-inverse">
+    <div  class ="container-fluid">
+        <div class = "navbar-header">
+            <a id = "homeLink" class = "navbar-brand" href = '../html/home_page.html'> Cynonymous </a>
+            <button id = "beginSafari">Safari Mode</button>
+            <button id = "endSafari">End Safari</button>
+            <!--BEGIN SIGNUP-->
+            <!--CSS for signup and login located in Head-->
+            <div id = "signup" class="jumbotron">
+                <center>
+                    First Name:
+                    <input name = "firstName" id = "firstName" size = "14"></center>
+                <center>Last Name:
+                    <input name = "lastName" id = "lastName" size = "14"></center>
+                <center>Email:
+                    <input name = "email" id = "email" size = "14"></center>
+
+                <center>Username:
+                    <input name = "newUsername" id = "newUserName" size = "14"></center>
+                <center>Password:
+                    <input name = "newPassword" id = "newPassword" size = "14"></center>
+
+                <center><button id = "close-sign-up">Close</button>
+                    <button id ="submit-sign-up">Create Account</button></center>
+
+            </div>
+            <!--END SIGNUP-->
+            <!--BEGIN LOGIN-->
+            <div id = "login" class="jumbotron">
+                <center> Username </center>
+                <center><input name = "username" id = "user" size = "14"/></center>
+                <center> Password </center>
+                <center><input name = "password" id = "pass" type = password size = "14"/></center>
+                <p>
+                    <button id = "close-login">Close</button>
+                    <button id = "submit-login">Submit</button>
+                </p>
+            </div>
+            <!--END LOGIN-->
+        </div>
+
+
+        <ul class = "nav navbar-nav navbar-right">
+            <li><a href="#" ><button id = "signup-bar">Sign Up</button></a></li>
+            <!-- MAKE SURE HELLOUSER AND CSS ARE ADDED TO ALL OLD HTML-->
+            <li><p id = "helloUser">Hello</p></li>
+            <li><a href="#" ><button id = "login-bar">Login</button></a></li>
+            <li><a href ="#"><button id = "logout-bar">Logout</button></a></li>
+
+        </ul>
+
+    </div>
+</nav>
+
+<div class = "jumbotron profile" id="nThreadPanel" style="background:blanchedalmond">
+
+
+<!-- PROFILE PIC / PROFILE NAME-->
+    <div class = "img-fluid profile" >
+        <img id = "profilePicture" src="../resources/chris.png"> </img><br>
+       <p align="center">Update Profile Picture
+
+        <form id = "newPicture"><input type = "file" name ="uploadedPic">
+        </form>
+        <button id = "submitPic" type="button"> Submit New Picture</button>
+
+
+        <h2  align = "center" id="profileTitle">User's Profile</h2>
+        <p align = "center">
+            <a href="../html/friendslist.html" style="color: black">Friends List</a>
+            <a href="../html/userposts.html" style="color: black">All Posts</a>
+        </p>
+    </div>
+
+
+
+    <!--BIO SECTION-->
+    <div class = "jumbotron profile">
+        <h4 id = "bioTitle">User's Bio  </h4>
+        <textarea id = "newBio" rows = "4" cols= "50"></textarea>
+        <p></p>
+        <button id = "closeBio">Close</button>
+        <button id = "submitBio">Submit</button>
+        <p id = "profileBio">
+            Here's a bio about a user
+        </p>
+        <button id = "updateBio">Update Bio</button>
+
+    </div>
+
+    <!--RECENT POSTS SECTION-->
+    <div class = "jumbotron profile">
+        <h4>Recent Posts</h4>
+       <table>
+           <tbody id = "profilePosts">
+
+           </tbody>
+       </table>
+    </div>
+
+    <!--TOP FRIENDS-->
+    <div class = "jumbotron profile" >
+        <h4>Top Friends</h4>
+        <table>
+            <tbody id = "profileFriends">
+
+            </tbody>
+        </table>
+    </div>
+
+    <!--PREFERENCES FIELD-->
+    <div class = "jumbotron profile">
+        <h4> Preferences </h4>
+        <h5>Privacy</h5>
+        <p id = "userPrivacy"></p>
+        <button id = "privacyTrue">Set Private</button>
+        <button id = "privacyFalse">Set Public</button>
+        <br>
+        <h5>Background Color Selection</h5>
+        <!--<form id = "colorPreference">-->
+            <!--<input type = "color"><br>-->
+            <!--<input type = "submit" value = "Update" onclick="">-->
+        <!--</form>-->
+
+        <input type = "color" id = "colorPicker">
+        <button id = "colorPickerUpdate"> Update Color </button>
+
+    </div>
+
+    <!--DELETE ACCOUNT-->
+    <div class = "jumbotron profile" >
+        <h4> Delete Account</h4>
+       <button id = "delete"> Delete Account </button>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<?PHP
+    //Ryan Buls
+
+
+    include("../utilities/utilities.php"); 
+    $DBH=connect_DB();
+    //echo "hello";
+    //echo $_POST["board_url"];
+    if(isset($_POST["board_url"])){
+        $id = (int)ret_board_id($DBH, $_POST["board_url"]);
+       // echo $id;
+        get_threads($DBH,$id);
+    }
+    /**
+     * Returns a board id from a given board url using the provided database connection.
+     * 
+     * @param PDO_DB_CONNECTION $DBH The database connection to use.
+     * @param string $url The board url to locate.
+     */
+
+    function ret_board_id($DBH, $url){
+        global $boardtable;
+
+        //$DBH = connect_DB();
+        $STH;
+        try{
+            //echo $url;
+            $query = "SELECT board_id from $boardtable WHERE board_url = :url";
+            $STH = $DBH->prepare($query);
+            
+            $STH->execute(["url" => $url]);
+        } 
+        catch(PDOException $e){
+            echo $e->getMessage();
+        }
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        if($STH->rowcount() == 1){
+            $val_arr = $STH->fetchall();
+            //echo $val_arr[0]["board_id"];
+            $STH=null;
+            return $val_arr[0]["board_id"];
+        } else {
+            echo "ERROR";
+        }
+        //$STH = null;
+    }
+
+    
+    /**
+     * Echos threads for the board specified by the board id.
+     *
+     * @param PDO_DB_CONNECTION $DBH The databse conncection to use.
+     * @param int $board_id The board id to return the threads of.
+     * @return void
+     */
+    function get_threads($DBH, $board_id){
+        global $threadtable;
+        //echo $board_id;
+        //echo "hello";
+        $STH;
+        
+        try {
+            $query = "SELECT thread_id, name, description, num_posts, date_created, thread_url FROM $threadtable WHERE board_id = :board ORDER BY date_created DESC";
+            $STH = $DBH->prepare($query);
+            
+            $STH -> execute(["board" => $board_id]);
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage();
+        }
+        //tells the query how to return the data --> As an associative array.
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        $array_to_return = $STH->fetchall();
+        $DBH = null;
+        //print_r($array_to_return);
+        echo json_encode($array_to_return);
+        //Associative array with keys "name", "description", "num_posts", "date_created"
+        //each thread has it's own numeric entry 0,1,2,3... that contains the above keys
+    }
+?>

@@ -1,0 +1,133 @@
+<?php
+//Christian Lucht
+include("../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+delete_post($dbh, 16);
+
+/**
+ * Deletes the specified post.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $post_id The id of the post to delete.
+ * @return void
+ */
+function delete_post($dbh, $post_id){
+	$board_id = find_board_id($dbh, $post_id);
+	$thread_id = find_thread_id($dbh, $post_id);
+
+	if($board_id == -1){
+		echo 'Error obtaining board number when deleting post. Action cancelled.';
+		return;
+	} 
+
+	if($thread_id == -1){
+		echo 'Error obtaining thread number when deleting post. Action cancelled.';
+		return;
+	}
+
+	$sql = 
+	"delete from posts 
+	where post_id = :post_id";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(":post_id", $post_id, PDO::PARAM_INT);
+		$sth->execute();
+
+		decrement_num_posts_board($dbh, $post_id);
+		decrement_num_posts_thread($dbh, $post_id);
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+}
+
+/**
+ * Decreases the number of posts on the parent board by 1.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $post_id The id of the post that is being deleted.
+ * @return void
+ */
+function decrement_num_posts_board($dbh, $post_id){
+	$param_arr = array(":board_id" => $board_id);
+	$sql = "UPDATE boards SET num_posts = num_posts - 1
+	WHERE board_id = :board_id";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->execute($param_arr);
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+}
+
+/**
+ * Decrements the number of posts on the parent thread by 1.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $post_id The id of the post that is being deleted.
+ * @return void
+ */
+function decrement_num_posts_thread($dbh, $post_id){
+	$param_arr = array(":thread_id" => $thread_id);
+	$sql = "UPDATE threads SET num_posts = num_posts - 1
+	WHERE thread_id = :thread_id";
+
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->execute($param_arr);
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+	}
+}
+
+/**
+ * Finds the id of the parent board for the specified post.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $post_id The id of the post to locate the parent board for.
+ * @return The id of the parent board.
+ */
+function find_board_id($dbh, $post_id){
+	$param_arr = array(":post_id" => $post_id);
+	$sql = "SELECT board_id FROM posts WHERE post_id = :post_id;";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->execute($param_arr);
+
+		$result = $sth->fetch(PDO::FETCH_ASSOC);
+		$board_id = $result["board_id"];
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+		return -1;
+	}
+	return $board_id;
+}
+
+/**
+ * Finds the id of the parent thread for the specified post.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $post_id The id of the post to locate the parent thread for.
+ * @return The id of the parent thread.
+ */
+function find_thread_id($dbh, $post_id){
+	$param_arr = array(":post_id" => $post_id);
+	$sql = "SELECT thread_id FROM posts WHERE post_id = :post_id;";
+
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->execute($param_arr);
+
+		$result = $sth->fetch(PDO::FETCH_ASSOC);
+		$thread_id = $result["thread_id"];
+	} catch(PDOException $e) {
+		echo $e->getMessage();
+		return -1;
+	}
+	return $thread_id;
+}
+
+
+
+// echo "Post deleted. <br>";

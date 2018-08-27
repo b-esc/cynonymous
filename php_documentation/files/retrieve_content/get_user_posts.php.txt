@@ -1,0 +1,35 @@
+<?php session_start();
+include("../utilities/utilities.php");
+
+if(isset($_SESSION["uid"])){
+    user_posts((int)$_SESSION["uid"]);
+}
+
+/**
+ * Echos all posts made by the user with the given id to the client as a json encoded associative array.
+ *
+ * @param int $id The id of the user to find the posts of.
+ * @return void
+ */
+function user_posts($id){
+    $DBH = connect_DB();
+    global $posttable;
+    try { //Creates and prepares queries to be executed (for posts and userinfo)
+        $query = "SELECT title, content, date_created FROM $posttable WHERE creator_uid=:uid ORDER BY post_id DESC";
+        //echo $query;
+        $STH = $DBH->prepare($query);
+        
+        $STH -> execute(["uid" => $id]);
+    }
+    catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+    //tells the query how to return the data --> As an associative array.
+    $STH->setFetchMode(PDO::FETCH_ASSOC);
+    $array_to_return = $STH->fetchall();
+    $DBH = null;
+    $STH = null;
+    echo json_encode($array_to_return);
+    //echo "Hello";
+
+}

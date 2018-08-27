@@ -1,0 +1,76 @@
+<?PHP include("utilities.php");
+
+clean_up();
+
+/**
+ * Cleans up the database anywhere there were failed querys.
+ *
+ * @return void
+ */
+function clean_up(){
+    $DBH = connect_DB();
+    global $posttable, $threadtable, $boardtable;
+
+    //gets table of board_id, thread_id where board_id is null if no such board exists.
+    try {
+        $query = "SELECT $threadtable.thread_id, $boardtable.board_id FROM $threadtable LEFT JOIN $boardtable ON $threadtable.board_id=$boardtable.board_id";
+        $STH = $DBH->prepare($query);
+        //echo $STH;
+        $STH -> execute();
+    }
+    catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+
+    $STH->setFetchMode(PDO::FETCH_ASSOC);
+    $threads_boards = $STH->fetchall();
+
+    //deletes all tables that should not exist
+    foreach($threads_boards as $row){
+        if($row["board_id"] == null){
+            try {
+                $query = "DELETE FROM $threadtable WHERE thread_id=:id";
+                $STH = $DBH->prepare($query);
+                //echo $STH;
+                $STH -> execute(["id" => $row["thread_id"]]);
+            }
+            catch(PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+    }
+
+
+    //gets table of thread_id, post_id where thread_id is null if no such thread exists.
+    try {
+        $query = "SELECT $posttable.post_id, $threadtable.thread_id FROM $posttable LEFT JOIN $threadtable ON $posttable.thread_id=$threadtable.thread_id";
+        $STH = $DBH->prepare($query);
+        //echo $STH;
+        $STH -> execute();
+    }
+    catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+
+    $STH->setFetchMode(PDO::FETCH_ASSOC);
+    $threads_boards = $STH->fetchall();
+
+    //deletes all tables that should not exist
+    foreach($threads_boards as $row){
+        if($row["thread_id"] == null){
+            print_r($row);
+
+            
+            try {
+                $query = "DELETE FROM $posttable WHERE post_id=:id";
+                $STH = $DBH->prepare($query);
+                //echo $STH;
+                $STH -> execute(["id" => $row["post_id"]]);
+            }
+            catch(PDOException $e) {
+                echo $e->getMessage();
+            }
+            
+        }
+    }
+}

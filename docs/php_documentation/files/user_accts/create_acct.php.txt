@@ -1,0 +1,28 @@
+<?PHP 
+    //Ryan Buls
+    include("../utilities.php"); // includes DB_INFO already, if needed
+    include("send_confirm_email.php");
+    $uname = $_POST["user"];
+    $upass = $_POST["pass"];
+    $fname = $_POST["fname"];
+    $email = $_POST["email"];
+    $lname = $_POST["lname"];
+
+    $DBH = connect_DB();
+    
+    try {
+        $query = "INSERT INTO ".$usertable." (username,password,privilege,first_name,last_name,email, date_created) VALUES (:uname, :upass, 1, :fname, :lname, :email,:date)";
+        $STH = $DBH->prepare($query);
+        //echo $STH;
+        $STH -> execute(["uname" => $uname, "upass" => $upass, "fname" => $fname, "email" => $email, "lname" => $lname, "date" => date("y-m-d")]);
+    }
+    catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+    
+    echo "YAY! You Have Been Added!!";
+    $verification_code = verification_hash($uname,$email);
+    send_email($email,$verification_code,$uname);
+    $DBH = null;
+
+?>

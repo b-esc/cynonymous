@@ -1,0 +1,58 @@
+<?php 
+//Ryan Buls
+    include("../utilities.php");
+
+
+    if(isset($_GET["uname"]) && isset($_GET["ver_code"])){
+        if(attempt_verification($_GET["uname"],$_GET["ver_code"])){
+            echo "SUCCESS";
+        } else {
+            echo "FAILED";
+        }
+    }
+    /**
+     * Attempts to verify a user's account by their username and the verification code given to them in a confirmation email.
+     *
+     * @param string $username The username of the account being verified.
+     * @param string $code The verification code passed to the user in an email.
+     * @return bool Indication success or failure of the verification.
+     */
+    function attempt_verification($username, $code){
+        $DBH = connect_DB();
+        global $usertable;
+        $STH;
+        try{
+            $query = "SELECT username, email FROM $usertable WHERE username = :username";
+            $STH = $DBH->prepare($query);
+            $STH->execute(["username"=>$username]);
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        $val_arr = $STH->fetchall();
+        if(verification_hash($val_arr[0]["username"],$val_arr[0]["email"]) == $code){
+            
+            //echo $val_arr[0]["board_id"];
+            try{
+                $query = "UPDATE $usertable SET verified = 1 WHERE username= :username";
+                $STH = $DBH->prepare($query);
+                $STH->execute(["username"=>$username]);
+    
+            }catch(PDOException $e){
+                echo $e->getMessage();
+            }
+            return 1;
+        } else {
+           echo "not the same<br>";
+            echo verification_hash($val_arr[0]["username"],$val_arr[0]["email"])."<br>";
+            echo $code."<br>";
+            echo $username ."<br>";
+            echo $val_arr[0]["username"]."<br>";
+            echo $val_arr[0]["email"]."<br>";
+            echo $id."<br>";
+            //printr($val_arr); 
+            return false;
+        }
+    }

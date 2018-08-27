@@ -1,0 +1,25 @@
+<?php
+//Christian Lucht
+include("../../utilities/utilities.php");
+
+$dbh = connect_DB();
+
+ban_user($dbh, 2);
+
+/**
+ * Bans a user from accessing the site.
+ *
+ * @param PDO_DB_CONNECTION $dbh The connection handle to the database.
+ * @param int $uid The id of the user that is to be banned.
+ * @return void
+ */
+function ban_user($dbh, $uid){
+	$sql = "UPDATE user_info SET banned = 1 WHERE id = :uid";
+	try{
+		$sth = $dbh->prepare($sql);
+		$sth->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$sth->execute();
+	} catch(PDOException $e) {
+        echo $e->getMessage();
+    }
+}

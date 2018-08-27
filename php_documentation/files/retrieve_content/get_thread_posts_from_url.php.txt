@@ -1,0 +1,83 @@
+<?PHP
+    //Ryan Buls
+    include("../utilities/utilities.php");
+    
+    if(isset($_POST["thread_url"])){
+        $DBH=connect_DB();
+        $id = (int)ret_thread_id($DBH, $_POST["thread_url"]);
+
+        get_posts($DBH,$id);
+    }
+
+    /**
+     * Echos the integer value of the thread id that corresponds to the given url.
+     *
+     * @param PDO_DB_CONNECTION $DBH The database connection to use.
+     * @param string $url The url to return the thread id of.
+     * @return int The id of the thread given by the url.
+     */
+    function ret_thread_id($DBH, $url){
+        global $threadtable;
+
+        //$DBH = connect_DB();
+
+        try{
+            $query = "SELECT thread_id from $threadtable WHERE thread_url = :url";
+            $STH = $DBH->prepare($query);
+
+            $STH->execute(["url" => $url]);
+        } 
+        catch(PDOException $e){
+            echo $e->getMessage();
+        }
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        if($STH->rowcount() == 1){
+            $val_arr = $STH->fetchall();
+            $STH = null;
+            return $val_arr[0]["thread_id"];
+        } else {
+            echo "ERROR";
+        }
+        $STH = null;
+        //$DBH = null;
+    }
+
+    /**
+     * Echos all posts for the corresponding thread id to the client in a json encoded associative array.
+     *
+     * @param PDO_DB_CONNECTION $DBH The database connection to use.
+     * @param string $thread_id THe thread id to echo the posts of.
+     * @return void
+     */
+    function get_posts($DBH, $thread_id){
+        
+        global $posttable, $usertable;
+        $STH;
+        
+        try { //Creates and prepares queries to be executed (for posts and userinfo)
+            $query = "SELECT $posttable.post_id, $posttable.title, $posttable.content, $posttable.anonymous, $usertable.username
+                from $posttable, $usertable WHERE $posttable.thread_id=:thread AND $usertable.id = $posttable.creator_uid
+                ORDER BY $posttable.post_id DESC";
+            $STH = $DBH->prepare($query);
+            
+            $STH -> execute(["thread" => $thread_id]);
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage();
+        }
+        //tells the query how to return the data --> As an associative array.
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+        $array_to_return = $STH->fetchall();
+        $DBH = null;
+        //print_r($array_to_return);
+
+        foreach($array_to_return as $key =>$row){
+            if($row["anonymous"]){
+                $array_to_return[$key]["username"] = "ANONYMOUS";
+            }
+        }
+
+
+        echo json_encode($array_to_return);
+    }
+?>

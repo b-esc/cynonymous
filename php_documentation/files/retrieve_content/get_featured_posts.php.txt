@@ -1,0 +1,33 @@
+<?php
+//Ryan Buls
+    include("../utilities/utilities.php");
+    get_featured_posts();
+
+    /**
+     * Echos featured posts to the client as a json encoded associative array.
+     *
+     * @return void
+     */
+    function get_featured_posts(){
+        
+        global $posttable;
+        $DBH = connect_DB();
+
+        $query = "SELECT title, content FROM $posttable WHERE anonymous = :anon ORDER BY date_created DESC LIMIT 3";
+        try { //Creates and prepares queries to be executed (for posts and userinfo)
+            $STH = $DBH->prepare($query);
+            $STH -> execute(["anon" => "0"]);
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage();
+        }
+        $STH->setFetchMode(PDO::FETCH_ASSOC);
+
+        $data = $STH->fetchAll();
+
+        $DBH = null;
+        $STH = null;
+
+        echo json_encode($data);
+        //print_r($data);
+    }
